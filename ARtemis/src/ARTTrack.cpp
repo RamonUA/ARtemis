@@ -6,10 +6,10 @@ using namespace std;
 
 # define PI 3.14159265358979323846  /* pi */
 
-ART::HammingFlannMatcher::HammingFlannMatcher( const Ptr<flann::IndexParams>& indexParams,
+ARTTrack::HammingFlannMatcher::HammingFlannMatcher( const Ptr<flann::IndexParams>& indexParams,
 const Ptr<flann::SearchParams>& searchParams) : cv::FlannBasedMatcher(indexParams, searchParams) {}
 
-void ART::HammingFlannMatcher::train()
+void ARTTrack::HammingFlannMatcher::train()
 {
     if( !flannIndex || mergedDescriptors.size() < addedDescCount )
     {
@@ -25,7 +25,7 @@ void ART::HammingFlannMatcher::train()
     }
 }
 
-ART::ARTTrack(const std::string &trainImage_t, const std::string &trainImage_b, float markerWidth, float workingDistance, cv::Mat &intrinsics, cv::Mat &distCoeff)
+ARTTrack::ARTTrack(const std::string &trainImage_t, const std::string &trainImage_b, float markerWidth, float workingDistance, cv::Mat &intrinsics, cv::Mat &distCoeff)
 {
     //_file.open("out.csv");
 
@@ -100,9 +100,9 @@ ART::ARTTrack(const std::string &trainImage_t, const std::string &trainImage_b, 
     _tracking = false;    
 }
 
-ART::~ARTTrack(){}
+ARTTrack::~ARTTrack(){}
 
-void ART::trainMarker( int maxKeypoints )
+void ARTTrack::trainMarker( int maxKeypoints )
 {
     // Calculate rotations(30º, azimuth step = 45º)
     std::vector<std::pair<float,float> > rotations;
@@ -201,7 +201,7 @@ void ART::trainMarker( int maxKeypoints )
         _keyPoints.push_back(finalKps[i]);
 }
 
-void ART::sortKeyPointsByDescriptors( const std::vector<cv::KeyPoint>& src, const std::vector<cv::Mat>& srcDesc, const size_t numMaxPoints, std::vector<cv::KeyPoint>& dst, std::vector<cv::Mat>& dstDesc ) 
+void ARTTrack::sortKeyPointsByDescriptors( const std::vector<cv::KeyPoint>& src, const std::vector<cv::Mat>& srcDesc, const size_t numMaxPoints, std::vector<cv::KeyPoint>& dst, std::vector<cv::Mat>& dstDesc ) 
 {
 	dst.reserve( numMaxPoints );
 	dstDesc.reserve( numMaxPoints );
@@ -224,7 +224,7 @@ void ART::sortKeyPointsByDescriptors( const std::vector<cv::KeyPoint>& src, cons
 	}
 }
 
-void ART::calcMeanDescriptors( std::vector<cv::Mat> &allDesc, cv::Mat &meanDesc )
+void ARTTrack::calcMeanDescriptors( std::vector<cv::Mat> &allDesc, cv::Mat &meanDesc )
 {
     meanDesc = cv::Mat(allDesc.size(), allDesc[0].cols, allDesc[0].type());
     cv::Mat mean;
@@ -286,7 +286,7 @@ void ART::calcMeanDescriptors( std::vector<cv::Mat> &allDesc, cv::Mat &meanDesc 
     }
 }
 
-cv::Mat ART::getHomography( cv::Size resolution, float degreesX, float degreesY, float degreesZ, float scale )
+cv::Mat ARTTrack::getHomography( cv::Size resolution, float degreesX, float degreesY, float degreesZ, float scale )
 {
 	const float degreeToRadian = 3.1415f/180.f;
 	cv::Mat Hx = cv::Mat::eye(3,3,CV_32F);
@@ -336,7 +336,7 @@ cv::Mat ART::getHomography( cv::Size resolution, float degreesX, float degreesY,
 	return H;
 }
 
-cv::Point2f ART::projectPointHomography(cv::Point2f& p, cv::Mat& h)
+cv::Point2f ARTTrack::projectPointHomography(cv::Point2f& p, cv::Mat& h)
 {    
     cv::Point2f result;
     float z = h.at<float>(2,0)*p.x + h.at<float>(2,1)*p.y + h.at<float>(2,2);
@@ -346,7 +346,7 @@ cv::Point2f ART::projectPointHomography(cv::Point2f& p, cv::Mat& h)
     return result;
 }
 
-float ART::computeDistance(cv::Point2f& p0, cv::Point2f& p1)
+float ARTTrack::computeDistance(cv::Point2f& p0, cv::Point2f& p1)
 {    
     float distance = 0.f;
 
@@ -356,7 +356,7 @@ float ART::computeDistance(cv::Point2f& p0, cv::Point2f& p1)
     return distance;
 }
 
-bool ART::findExtrinsics(const cv::Mat &inputFrame, const cv::Rect &ROI, std::vector<int> &inliers, cv::Mat &tvec, cv::Mat &rvec)
+bool ARTTrack::findExtrinsics(const cv::Mat &inputFrame, const cv::Rect &ROI, std::vector<int> &inliers, cv::Mat &tvec, cv::Mat &rvec)
 {
     cv::Mat frame = inputFrame(ROI);
     cv::Point2f offset = cv::Point2f(ROI.x, ROI.y);
@@ -454,7 +454,7 @@ bool ART::findExtrinsics(const cv::Mat &inputFrame, const cv::Rect &ROI, std::ve
     return false;
 }
 
-void ART::trackKeyPoints(const cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, std::vector<cv::Point3f> &objectPoints, std::vector<cv::Point2f> &output2d)
+void ARTTrack::trackKeyPoints(const cv::Mat &inputImage, std::vector<cv::KeyPoint> &keyPoints, std::vector<cv::Point3f> &objectPoints, std::vector<cv::Point2f> &output2d)
 {
     // Area from inputImage, template from marker image
     cv::Mat1b searchArea = cv::Mat1b(_areaSize, _areaSize);
@@ -503,7 +503,7 @@ cv::waitKey(0);
     }
 }
 
-cv::Point2f ART::templateMatching(const cv::Mat1b &img, const cv::Mat &templ)
+cv::Point2f ARTTrack::templateMatching(const cv::Mat1b &img, const cv::Mat &templ)
 {
     cv::Mat1f ccorr;
     cv::matchTemplate(img, templ, ccorr, CV_TM_CCORR_NORMED);
@@ -520,7 +520,7 @@ cv::Point2f ART::templateMatching(const cv::Mat1b &img, const cv::Mat &templ)
     return loc;
 }
 
-cv::Mat ART::getTransformationHomography(cv::Rect &BB)
+cv::Mat ARTTrack::getTransformationHomography(cv::Rect &BB)
 {
     std::vector<cv::Point2f> inputPoints, projPoints;
     std::vector<cv::Point3f> points3d;
@@ -566,7 +566,7 @@ cv::Mat ART::getTransformationHomography(cv::Rect &BB)
     return transf;
 }
 
-void ART::resetKalman()
+void ARTTrack::resetKalman()
 {
     _KF.init(18, 6, 0);
 
@@ -617,7 +617,7 @@ void ART::resetKalman()
     _clock = std::clock();    
 }
 
-void ART::updateKalman()
+void ARTTrack::updateKalman()
 {
     float tp1, tp2, tp3, rp1, rp2, rp3, tm, rm;
     tp1 = (_tproc1%10) / std::pow(10, 10 - std::floor(_tproc1/10));
@@ -718,7 +718,7 @@ void ART::updateKalman()
     _rvec.at<double>(2) = estimated.at<float>(11);
 }
 
-void ART::filterKeyPoints(std::vector<cv::KeyPoint> &keyPoints, int maxKeyPoints)
+void ARTTrack::filterKeyPoints(std::vector<cv::KeyPoint> &keyPoints, int maxKeyPoints)
 {
     if(keyPoints.size() > maxKeyPoints)
     {
@@ -730,7 +730,7 @@ void ART::filterKeyPoints(std::vector<cv::KeyPoint> &keyPoints, int maxKeyPoints
     }
 }
 
-void ART::filterMatches(std::vector<std::vector<cv::DMatch> > &matches, int maxMatches)
+void ARTTrack::filterMatches(std::vector<std::vector<cv::DMatch> > &matches, int maxMatches)
 {
     if(matches.size() > maxMatches)
     {
@@ -742,12 +742,12 @@ void ART::filterMatches(std::vector<std::vector<cv::DMatch> > &matches, int maxM
     } 
 }
 
-void ART::projectPoints(const std::vector<cv::Point3f> &objPoints, std::vector<cv::Point2f> &projPoints)
+void ARTTrack::projectPoints(const std::vector<cv::Point3f> &objPoints, std::vector<cv::Point2f> &projPoints)
 {
     cv::projectPoints(objPoints, _rvec, _tvec, _intrinsics, _distCoeff, projPoints);
 }
 
-void ART::drawMarker(cv::Mat &image, const std::vector<int> &inliers)
+void ARTTrack::drawMarker(cv::Mat &image, const std::vector<int> &inliers)
 {
     std::vector<cv::Point2f> projCorners;
     projectPoints(_corners3d, projCorners);
@@ -769,7 +769,7 @@ void ART::drawMarker(cv::Mat &image, const std::vector<int> &inliers)
         cv::circle(image, projInliers[i], 1, cv::Scalar(0,0,255), 2);
 }
 
-void ART::drawRectangle(cv::Mat &image, const cv::Point2f &center, const cv::Size &size, const cv::Scalar &color)
+void ARTTrack::drawRectangle(cv::Mat &image, const cv::Point2f &center, const cv::Size &size, const cv::Scalar &color)
 {
     std::vector<cv::Point3f> corners3d(4);
 
@@ -787,7 +787,7 @@ void ART::drawRectangle(cv::Mat &image, const cv::Point2f &center, const cv::Siz
     cv::line(image, projCorners[3], projCorners[0], color, 2);
 }
 
-void ART::getKeyPointsUniform(std::vector<int> &inliers, int maxPoints, const cv::Size &gridSize, std::vector<cv::KeyPoint> &dst2d, std::vector<cv::Point3f> &dst3d)
+void ARTTrack::getKeyPointsUniform(std::vector<int> &inliers, int maxPoints, const cv::Size &gridSize, std::vector<cv::KeyPoint> &dst2d, std::vector<cv::Point3f> &dst3d)
 {
 	/*if( inliers.size() < (size_t)maxPoints ){
         for(int i = 0; i < inliers.size(); ++i)

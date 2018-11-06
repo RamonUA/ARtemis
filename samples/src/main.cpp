@@ -10,6 +10,8 @@
 
 #define LOG_TAG "Sample_ARtemis"
 
+using namespace ART;
+
 cv::VideoCapture _videoCapture;
 
 cv::Mat3b _incomingFrame;
@@ -25,7 +27,7 @@ int 	_cameraHeight = 0;
 
 int _scale = 1;
 
-ART::ARtemis* _tracker;
+ART::ARTTrack* _tracker;
 
 cv::Mat _rvec, _tvec;
 cv::Mat _intrinsics, _distCoeff;
@@ -41,8 +43,6 @@ float _workingDistance = 250.f;
 std::clock_t _clock;
 
 //int cont = 0;
-
-using namespace ART;
 
 void waitAndExit(int errorCode)
 {
@@ -87,7 +87,6 @@ void initMatrices()
 	_distCoeff.at<float>(1) = -0.171852f;
 	_distCoeff.at<float>(2) = -0.001701f;
 	_distCoeff.at<float>(3) = 0.001883f;
-
 }
 
 void init()
@@ -116,7 +115,7 @@ void init()
 	initMatrices();
 
 	// INIT TRACKER
-	_tracker = new JBCTrack(_trainImage_t, _trainImage_b, _markerWidth, _workingDistance, _intrinsics, _distCoeff);
+	_tracker = new ART::ARTTrack(_trainImage_t, _trainImage_b, _markerWidth, _workingDistance, _intrinsics, _distCoeff);
 }
 
 int main()

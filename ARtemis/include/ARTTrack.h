@@ -27,10 +27,10 @@
 
 /*	==============================================================================================*/
 namespace  ART{
-	class ARTEMIS_LIB ARtemis{
+	class ARTEMIS_LIB ARTTrack{
 		public:
-			ARtemis(const std::string &trainImage_t, const std::string &trainImage_b, float markerWidth, float workingDistance, cv::Mat &intrinsics, cv::Mat &distCoeff);
-			~ARtemis();
+			ARTTrack(const std::string &trainImage_t, const std::string &trainImage_b, float markerWidth, float workingDistance, cv::Mat &intrinsics, cv::Mat &distCoeff);
+			~ARTTrack();
 
 			bool findExtrinsics(const cv::Mat &inputFrame, const cv::Rect &ROI, std::vector<int> &inliers, cv::Mat &tvec, cv::Mat &rvec);
 
