@@ -1,0 +1,3 @@
+[submodule "cmake_tools"]
+	path = cmake_tools
+	url = https://github.com/RamonUA/cmake_tools.git

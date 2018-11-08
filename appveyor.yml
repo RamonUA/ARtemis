@@ -1,0 +1,71 @@
+version: 1.0.{build}
+os:
+  - Visual Studio 2017
+  - Visual Studio 2015
+  
+environment:  
+  OpenCV_DIR: C:\tools\opencv\build\
+  matrix:
+    - OPENCV_VERSION: "3.2.0"
+        
+    - OPENCV_VERSION: "3.3.1"
+        
+    - OPENCV_VERSION: "3.4.2"
+    
+    - OPENCV_VERSION: "3.4.3"
+  
+matrix:
+  exclude:
+    - os: Visual Studio 2017
+      OPENCV_VERSION: "3.2.0"        
+          
+    - os: Visual Studio 2017
+      OPENCV_VERSION: "3.3.1" 
+      
+  allow_failures:      
+    - os: Visual Studio 2017
+      OPENCV_VERSION: "3.4.3"
+
+    - os: Visual Studio 2015
+      OPENCV_VERSION: "3.4.3"
+            
+configuration:
+- Debug
+- Release
+platform: x64
+init:
+- cmd: >-
+    set arch= Win64
+    
+    echo %arch%
+    
+    echo %APPVEYOR_BUILD_WORKER_IMAGE%
+    
+    if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" ( set generator="Visual Studio 15 2017%arch%" )
+    
+    if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" ( set generator="Visual Studio 14 2015%arch%" )
+    
+    echo %generator%    
+
+install:
+- cmd: >-
+    ECHO %OPENCV_VERSION%
+    
+    choco install OpenCV --y --version %OPENCV_VERSION%
+    
+    git submodule update --init --recursive
+    
+before_build:
+- cmd: >-
+    mkdir build
+    
+    cd build
+    
+    cmake --version
+    
+    cmake .. -G %generator% -OpenCV_DIR=%OpenCV_DIR%
+    
+build:
+  project: /build/ARTEMIS.sln
+  parallel: true
+  verbosity: minimal
